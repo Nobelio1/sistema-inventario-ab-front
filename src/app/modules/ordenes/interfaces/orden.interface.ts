@@ -42,5 +42,5 @@ export interface IOrdenes {
 }
 
 export interface IOrdenResponse extends IDataResponse{
-  orden: IOrdenes[];
+  data: IOrdenes[];
 }

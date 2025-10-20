@@ -152,15 +152,20 @@ export class NuevaOrdenModal implements OnInit {
       cantidad: p.cantidad
     }));
 
+    const fecha = new Date(this.ordenForm.get('fechaOrden')?.value);
+    const fechaOrden = `${fecha.getFullYear()}-${String(fecha.getMonth() + 1).padStart(2, '0')}-${String(fecha.getDate()).padStart(2, '0')}T${String(fecha.getHours()).padStart(2, '0')}:${String(fecha.getMinutes()).padStart(2, '0')}:${String(fecha.getSeconds()).padStart(2, '0')}`;
+
     const nuevaOrden: ICrearOrden = {
       ...this.ordenForm.value,
       idProveedor: Number(this.ordenForm.value.idProveedor),
-      detalleOrden
+      detalleOrden,
+      idUsuario: 4,
+      fechaOrden,
     };
 
     console.log('Orden a crear:', nuevaOrden);
 
-    this.ordenesService.crearOrden(nuevaOrden).subscribe({
+    this.ordenesService.crearOrdenCompra(nuevaOrden).subscribe({
       next: (response) => {
         console.log('Orden creada exitosamente:', response);
         this.isSubmitting.set(false);

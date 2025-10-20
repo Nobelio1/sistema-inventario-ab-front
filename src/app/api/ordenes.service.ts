@@ -16,8 +16,8 @@ export class OrdenesService {
     return this.http.get<IOrdenResponse>(this.apiUrl);
   }
 
-  crearOrden(orden: ICrearOrden): Observable<IDataResponse> {
-    return this.http.post<IDataResponse>(this.apiUrl, orden);
+  crearOrdenCompra(orden: ICrearOrden): Observable<IDataResponse> {
+    return this.http.post<IDataResponse>(`${this.apiUrl}/compra`, orden);
   }
 
   getOrdenById(id: number): Observable<IOrdenResponse> {

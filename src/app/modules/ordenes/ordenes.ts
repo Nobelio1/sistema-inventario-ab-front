@@ -23,13 +23,13 @@ export class Ordenes implements OnInit {
 
   cargarOrdenes() {
     this.ordenesService.getOrdenes().subscribe({
-      next: (data) => {
-        const {orden, success, message} = data;
+      next: (res) => {
+        const {data, success, message} = res;
         if (!success) {
           console.error(message)
           return
         }
-        this.ordenes.set(orden);
+        this.ordenes.set(data);
       },
       error: (error) => {
         console.error('Error al cargar órdenes:', error);
@@ -47,5 +47,13 @@ export class Ordenes implements OnInit {
 
   onOrdenCreada() {
     this.cargarOrdenes();
+  }
+
+  formatearFecha(fechaIso: string): string {
+    const fecha = new Date(fechaIso);
+    const dia = String(fecha.getDate()).padStart(2, '0');
+    const mes = String(fecha.getMonth() + 1).padStart(2, '0');
+    const anio = fecha.getFullYear();
+    return `${dia}-${mes}-${anio}`;
   }
 }

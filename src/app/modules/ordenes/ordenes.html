@@ -42,10 +42,10 @@
                         <tr class="hover:bg-gray-50 transition-colors duration-150">
                             <td class="py-4 px-6 text-sm text-center text-gray-900">{{ orden.id }}</td>
                             <td class="py-4 px-6 text-sm text-center text-gray-900">{{ orden.tipo }}</td>
-                            <td class="py-4 px-6 text-sm text-center text-gray-900">{{ orden.fecha }}</td>
+                            <td class="py-4 px-6 text-sm text-center text-gray-900">{{ formatearFecha(orden.fecha) }}</td>
                             <td class="py-4 px-6 text-sm text-center text-gray-900">{{ orden.estado }}</td>
                             <td class="py-4 px-6 text-sm text-center text-gray-900">{{ orden.creador }}</td>
-                            <td class="py-4 px-6 text-sm text-center text-gray-900">S/. {{ orden.total }}</td>
+                            <td class="py-4 px-6 text-sm text-center text-gray-900">S/ {{ orden.total }}</td>
                             <td class="py-4 px-6 text-sm text-center">
                                 <button class="bg-sky-900 text-white py-2 px-4 rounded-md cursor-pointer transition-colors hover:bg-sky-700 duration-200">
                                     Ver
