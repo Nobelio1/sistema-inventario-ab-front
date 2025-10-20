@@ -1,1 +1,67 @@
-<p>ordenes works!</p>
+<div class="mx-48">
+    <div class="mt-10">
+        <h1 class="text-2xl font-bold">{{ title() }}</h1>
+    </div>
+    <div class="flex justify-between items-center mt-5 bg-white p-5 rounded-lg shadow-md">
+        <div class="flex gap-5">
+            <span>10 Totales</span>
+            <span class="text-orange-500">2 Pendientes</span>
+            <span class="text-green-600">8 Aprobadas</span>
+        </div>
+        <div>
+            <button
+                (click)="abrirModal()"
+                class="bg-sky-900 text-white p-2 rounded-md cursor-pointer transition-colors hover:bg-sky-700 duration-200">
+                Nueva Orden
+            </button>
+        </div>
+    </div>
+    <div class="mt-5">
+        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+            <table class="min-w-full">
+                <thead class="bg-sky-50 border-b border-gray-200">
+                <tr>
+                    <th class="py-3 px-6 text-center text-sm font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                    <th class="py-3 px-6 text-center text-sm font-medium text-gray-500 uppercase tracking-wider">Tipo
+                    </th>
+                    <th class="py-3 px-6 text-center text-sm font-medium text-gray-500 uppercase tracking-wider">Fecha
+                    </th>
+                    <th class="py-3 px-6 text-center text-sm font-medium text-gray-500 uppercase tracking-wider">
+                        Estado
+                    </th>
+                    <th class="py-3 px-6 text-center text-sm font-medium text-gray-500 uppercase tracking-wider">
+                        Creado
+                    </th>
+                    <th class="py-3 px-6 text-center text-sm font-medium text-gray-500 uppercase tracking-wider">Total
+                    </th>
+                    <th class="py-3 px-6 text-center text-sm font-medium text-gray-500 uppercase tracking-wider"></th>
+                </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    @for (orden of ordenes(); track orden.id) {
+                        <tr class="hover:bg-gray-50 transition-colors duration-150">
+                            <td class="py-4 px-6 text-sm text-center text-gray-900">{{ orden.id }}</td>
+                            <td class="py-4 px-6 text-sm text-center text-gray-900">{{ orden.tipo }}</td>
+                            <td class="py-4 px-6 text-sm text-center text-gray-900">{{ orden.fecha }}</td>
+                            <td class="py-4 px-6 text-sm text-center text-gray-900">{{ orden.estado }}</td>
+                            <td class="py-4 px-6 text-sm text-center text-gray-900">{{ orden.creador }}</td>
+                            <td class="py-4 px-6 text-sm text-center text-gray-900">S/. {{ orden.total }}</td>
+                            <td class="py-4 px-6 text-sm text-center">
+                                <button class="bg-sky-900 text-white py-2 px-4 rounded-md cursor-pointer transition-colors hover:bg-sky-700 duration-200">
+                                    Ver
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@if (mostrarModal()) {
+    <app-nueva-orden-modal
+        (closeModal)="cerrarModal()"
+        (ordenCreada)="onOrdenCreada()">
+    </app-nueva-orden-modal>
+}
