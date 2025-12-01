@@ -1,7 +1,7 @@
 import {IDataResponse} from './data-response.interface';
 
 export interface ISalida {
-  id?: number;
+  id: number;
   ordenVentaId: number;
   fecha: string;
   tipo: 'Venta' | 'Merma' | 'Devolución' | 'Ajuste' | 'Donación';

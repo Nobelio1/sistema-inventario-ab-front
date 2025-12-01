@@ -295,7 +295,7 @@
         <tr>
           <td colspan="6" class="py-3 px-6 text-right font-bold text-gray-700">VALOR TOTAL INVENTARIO:</td>
           <td class="py-3 px-6 text-center font-bold text-sky-900 text-lg">
-            S/ {{ productos().reduce((sum, p) = > sum + (p.stock * p.precio), 0).toFixed(2) }}
+            S/ {{ calcularValorTotalInventario().toFixed(2) }}
           </td>
         </tr>
         </tfoot>

@@ -106,6 +106,11 @@ export class Dashboard implements OnInit {
     return this.ordenes().filter(o => o.estado === 'Pendiente').length;
   }
 
+  // Método para contar productos por categoría
+  contarProductosPorCategoria(categoria: string): number {
+    return this.productos().filter(p => p.categoria === categoria).length;
+  }
+
   formatearFecha(fechaIso: string): string {
     const fecha = new Date(fechaIso);
     return fecha.toLocaleDateString('es-PE', {

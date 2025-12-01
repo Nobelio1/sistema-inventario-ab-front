@@ -21,20 +21,20 @@ export class LocalStorageService {
     this.setItem(key, data);
   }
 
-  add<T extends { id?: number }>(key: string, item: T): T {
-    const items = this.getItem<T>(key);
+  add<T>(key: string, item: Omit<T, 'id'>): T {
+    const items = this.getItem<T & { id: number }>(key);
     const newId = items.length > 0
       ? Math.max(...items.map(i => i.id || 0)) + 1
       : 1;
-    const newItem = {...item, id: newId};
-    items.push(newItem);
+    const newItem = {...item, id: newId} as T;
+    items.push(newItem as T & { id: number });
     this.setItem(key, items);
     return newItem;
   }
 
   update<T extends { id: number }>(key: string, item: T): T {
     const items = this.getItem<T>(key);
-    const index = items.findIndex(i => i.id === item.id);
+    const index = items.findIndex(i => (i as any).id === item.id);
     if (index !== -1) {
       items[index] = item;
       this.setItem(key, items);
@@ -42,15 +42,15 @@ export class LocalStorageService {
     return item;
   }
 
-  delete<T extends { id: number }>(key: string, id: number): void {
-    const items = this.getItem<T>(key);
+  delete<T>(key: string, id: number): void {
+    const items = this.getItem<T & { id: number }>(key);
     const filtered = items.filter(i => i.id !== id);
     this.setItem(key, filtered);
   }
 
-  getById<T extends { id: number }>(key: string, id: number): T | undefined {
-    const items = this.getItem<T>(key);
-    return items.find(i => i.id === id);
+  getById<T>(key: string, id: number): T | undefined {
+    const items = this.getItem<T & { id: number }>(key);
+    return items.find(i => i.id === id) as T | undefined;
   }
 
   initialize(): void {

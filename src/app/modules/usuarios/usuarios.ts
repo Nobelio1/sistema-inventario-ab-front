@@ -1,3 +1,4 @@
+// src/app/modules/usuarios/usuarios.ts
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -84,5 +85,10 @@ export class Usuarios implements OnInit {
       'Vendedor': 'bg-yellow-100 text-yellow-800'
     };
     return colores[rol] || 'bg-gray-100 text-gray-800';
+  }
+
+  // Método para contar usuarios activos
+  contarUsuariosActivos(): number {
+    return this.usuarios().filter(u => u.estado === 'Activo').length;
   }
 }

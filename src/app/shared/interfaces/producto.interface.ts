@@ -1,7 +1,7 @@
 import {IDataResponse} from './data-response.interface';
 
 export interface IProducto {
-  id?: number;
+  id: number;
   codigo: string;
   nombre: string;
   categoria: string;

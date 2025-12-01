@@ -1,7 +1,7 @@
 import {IDataResponse} from './data-response.interface';
 
 export interface IUsuario {
-  id?: number;
+  id: number;
   nombre: string;
   email: string;
   rol: string;

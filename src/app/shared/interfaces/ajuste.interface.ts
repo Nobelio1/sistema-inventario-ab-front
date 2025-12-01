@@ -1,7 +1,7 @@
 import {IDataResponse} from './data-response.interface';
 
 export interface IAjuste {
-  id?: number;
+  id: number;
   fecha: string;
   productoId: number;
   productoNombre: string;

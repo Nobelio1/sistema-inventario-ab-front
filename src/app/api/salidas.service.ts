@@ -1,10 +1,10 @@
-import { inject, Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
-import { LocalStorageService } from '../shared/services/local-storage.service';
-import { ISalida, ISalidaResponse } from '../shared/interfaces/salida.interface';
-import { IDataResponse } from '../shared/interfaces/data-response.interface';
-import { ProductosService } from './productos.service';
-import { MovimientosService } from './movimientos.service';
+import {inject, Injectable} from '@angular/core';
+import {Observable, of} from 'rxjs';
+import {LocalStorageService} from '../shared/services/local-storage.service';
+import {ISalida, ISalidaResponse} from '../shared/interfaces/salida.interface';
+import {IDataResponse} from '../shared/interfaces/data-response.interface';
+import {ProductosService} from './productos.service';
+import {MovimientosService} from './movimientos.service';
 
 @Injectable({
   providedIn: 'root'
@@ -15,7 +15,7 @@ export class SalidasService {
   private readonly movimientosService = inject(MovimientosService);
 
   getSalidas(): Observable<ISalidaResponse> {
-    const salidas = this.localStorage.get<ISalida>('salidas');
+    const salidas = this.localStorage.get<ISalida>('salidas') as ISalida[];
     return of({
       success: true,
       message: 'Salidas obtenidas correctamente',
@@ -26,22 +26,32 @@ export class SalidasService {
   registrarSalida(salida: Omit<ISalida, 'id'>): Observable<IDataResponse> {
     // Validar stock disponible
     for (const detalle of salida.productos) {
-      this.productosService.getProductoById(detalle.productoId).subscribe(res => {
+      const productoObs = this.productosService.getProductoById(detalle.productoId);
+      let hayStock = true;
+
+      productoObs.subscribe(res => {
         const producto = res.data[0];
         if (producto && producto.stock < detalle.cantidad) {
-          return of({
-            success: false,
-            message: `Stock insuficiente para ${producto.nombre}`
-          });
+          hayStock = false;
         }
       });
+
+      if (!hayStock) {
+        return of({
+          success: false,
+          message: `Stock insuficiente para el producto`
+        });
+      }
     }
 
     // Generar ID de comprobante
     const comprobante = this.generarComprobanteId();
-    const nuevaSalida = { ...salida, comprobanteId: comprobante };
+    const nuevaSalida: Omit<ISalida, 'id'> = {
+      ...salida,
+      comprobanteId: comprobante
+    };
 
-    this.localStorage.add('salidas', nuevaSalida);
+    this.localStorage.add<ISalida>('salidas', nuevaSalida);
 
     // Actualizar stock y registrar movimientos
     salida.productos.forEach(detalle => {
@@ -70,7 +80,7 @@ export class SalidasService {
     const fecha = new Date();
     const año = fecha.getFullYear();
     const mes = String(fecha.getMonth() + 1).padStart(2, '0');
-    const salidas = this.localStorage.get<ISalida>('salidas');
+    const salidas = this.localStorage.get<ISalida>('salidas') as ISalida[];
     const numero = String(salidas.length + 1).padStart(5, '0');
     return `CS-${año}-${mes}-${numero}`;
   }

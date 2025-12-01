@@ -6,7 +6,7 @@
   <div class="flex justify-between items-center mt-5 bg-white p-5 rounded-lg shadow-md">
     <div class="flex gap-5">
       <span>{{ usuarios().length }} Usuarios</span>
-      <span class="text-green-600">{{ usuarios().filter(u = > u.estado === 'Activo').length }} Activos</span>
+      <span class="text-green-600">{{ contarUsuariosActivos() }} Activos</span>
     </div>
     <div class="flex gap-3">
       <input

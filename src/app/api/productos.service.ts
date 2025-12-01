@@ -1,8 +1,8 @@
-import {inject, Injectable} from '@angular/core';
-import {Observable, of} from 'rxjs';
-import {LocalStorageService} from '../shared/services/local-storage.service';
-import {IProducto, IProductoResponse} from '../shared/interfaces/producto.interface';
-import {IDataResponse} from '../shared/interfaces/data-response.interface';
+import { inject, Injectable } from '@angular/core';
+import { Observable, of } from 'rxjs';
+import { LocalStorageService } from '../shared/services/local-storage.service';
+import { IProducto, IProductoResponse } from '../shared/interfaces/producto.interface';
+import { IDataResponse } from '../shared/interfaces/data-response.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -15,7 +15,7 @@ export class ProductosService {
     return of({
       success: true,
       message: 'Productos obtenidos correctamente',
-      data: productos
+      data: productos as IProducto[]
     });
   }
 
@@ -28,8 +28,8 @@ export class ProductosService {
     });
   }
 
-  crearProducto(producto: IProducto): Observable<IDataResponse> {
-    this.localStorage.add('productos', producto);
+  crearProducto(producto: Omit<IProducto, 'id'>): Observable<IDataResponse> {
+    this.localStorage.add<IProducto>('productos', producto);
     return of({
       success: true,
       message: 'Producto creado correctamente'
@@ -45,7 +45,7 @@ export class ProductosService {
   }
 
   eliminarProducto(id: number): Observable<IDataResponse> {
-    this.localStorage.delete<IProducto>('productos', id);
+    this.localStorage.delete('productos', id);
     return of({
       success: true,
       message: 'Producto eliminado correctamente'
@@ -53,7 +53,7 @@ export class ProductosService {
   }
 
   getProductosStockBajo(): Observable<IProductoResponse> {
-    const productos = this.localStorage.get<IProducto>('productos');
+    const productos = this.localStorage.get<IProducto>('productos') as IProducto[];
     const stockBajo = productos.filter(p => p.stock <= p.stockMinimo);
     return of({
       success: true,

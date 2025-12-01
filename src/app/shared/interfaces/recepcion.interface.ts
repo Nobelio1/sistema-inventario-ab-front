@@ -1,7 +1,7 @@
 import {IDataResponse} from './data-response.interface';
 
 export interface IRecepcion {
-  id?: number;
+  id: number;
   ordenCompraId: number;
   proveedorId: number;
   proveedorNombre: string;

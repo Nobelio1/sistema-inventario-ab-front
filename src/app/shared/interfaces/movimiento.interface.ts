@@ -1,7 +1,7 @@
 import {IDataResponse} from './data-response.interface';
 
 export interface IMovimiento {
-  id?: number;
+  id: number;
   tipo: 'Entrada' | 'Salida' | 'Ajuste';
   fecha: string;
   productoId: number;

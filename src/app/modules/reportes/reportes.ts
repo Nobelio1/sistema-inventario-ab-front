@@ -1,3 +1,4 @@
+// src/app/modules/reportes/reportes.ts
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -108,6 +109,11 @@ export class Reportes implements OnInit {
     return this.movimientos()
       .filter(m => m.tipo === tipo)
       .reduce((sum, m) => sum + m.cantidad, 0);
+  }
+
+  // Método para calcular el valor total del inventario
+  calcularValorTotalInventario(): number {
+    return this.productos().reduce((sum, p) => sum + (p.stock * p.precio), 0);
   }
 
   getProductosMasVendidos() {

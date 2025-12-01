@@ -1,7 +1,7 @@
 import {IDataResponse} from './data-response.interface';
 
 export interface IProveedor {
-  id?: number;
+  id: number;
   nombre: string;
   ruc: string;
   telefono: string;
