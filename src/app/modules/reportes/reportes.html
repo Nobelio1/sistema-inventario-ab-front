@@ -1,1 +1,305 @@
-<p>reportes works!</p>
+<!-- src/app/modules/reportes/reportes.html -->
+<div class="mx-48">
+  <div class="mt-10">
+    <h1 class="text-2xl font-bold">{{ title() }}</h1>
+  </div>
+
+  <!-- Filtros -->
+  <div class="mt-5 bg-white p-5 rounded-lg shadow-md">
+    <h3 class="text-lg font-semibold mb-4">Filtros de Reporte</h3>
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">
+          Tipo de Reporte
+        </label>
+        <select
+          [ngModel]="tipoReporte()"
+          (ngModelChange)="tipoReporte.set($event); cargarDatos()"
+          class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-500"
+        >
+          <option value="movimientos">Movimientos</option>
+          <option value="salidas">Salidas</option>
+          <option value="productos">Productos</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">
+          Fecha Inicio
+        </label>
+        <input
+          type="date"
+          [ngModel]="fechaInicio()"
+          (ngModelChange)="fechaInicio.set($event)"
+          class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-500"
+        />
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">
+          Fecha Fin
+        </label>
+        <input
+          type="date"
+          [ngModel]="fechaFin()"
+          (ngModelChange)="fechaFin.set($event)"
+          class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-500"
+        />
+      </div>
+
+      @if (tipoReporte() === 'movimientos') {
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            Tipo de Movimiento
+          </label>
+          <select
+            [ngModel]="tipoMovimiento()"
+            (ngModelChange)="tipoMovimiento.set($event)"
+            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-500"
+          >
+            <option value="Todos">Todos</option>
+            <option value="Entrada">Entradas</option>
+            <option value="Salida">Salidas</option>
+            <option value="Ajuste">Ajustes</option>
+          </select>
+        </div>
+      }
+
+      <div class="flex items-end">
+        <button
+          (click)="cargarDatos()"
+          class="w-full bg-sky-900 text-white px-4 py-2 rounded-md hover:bg-sky-700 transition-colors"
+        >
+          Generar Reporte
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Acciones -->
+  <div class="flex justify-end gap-3 mt-5">
+    <button
+      (click)="exportarPDF()"
+      class="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors">
+      <lucide-angular [img]="downloadIcon" class="w-4 h-4"></lucide-angular>
+      Exportar PDF
+    </button>
+    <button
+      (click)="exportarExcel()"
+      class="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors">
+      <lucide-angular [img]="downloadIcon" class="w-4 h-4"></lucide-angular>
+      Exportar Excel
+    </button>
+    <button
+      (click)="imprimir()"
+      class="flex items-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors">
+      <lucide-angular [img]="printerIcon" class="w-4 h-4"></lucide-angular>
+      Imprimir
+    </button>
+  </div>
+
+  <!-- Estadísticas Generales -->
+  @if (tipoReporte() === 'movimientos' || tipoReporte() === 'salidas') {
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mt-5">
+      @if (tipoReporte() === 'movimientos') {
+        <div class="bg-white p-5 rounded-lg shadow-md">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm text-gray-600">Total Entradas</p>
+              <p class="text-2xl font-bold text-green-600">{{ calcularTotalMovimientos('Entrada') }}</p>
+            </div>
+            <lucide-angular [img]="upIcon" class="w-10 h-10 text-green-600"></lucide-angular>
+          </div>
+        </div>
+
+        <div class="bg-white p-5 rounded-lg shadow-md">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm text-gray-600">Total Salidas</p>
+              <p class="text-2xl font-bold text-red-600">{{ calcularTotalMovimientos('Salida') }}</p>
+            </div>
+            <lucide-angular [img]="downIcon" class="w-10 h-10 text-red-600"></lucide-angular>
+          </div>
+        </div>
+      }
+
+      @if (tipoReporte() === 'salidas') {
+        <div class="bg-white p-5 rounded-lg shadow-md">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm text-gray-600">Total Ventas</p>
+              <p class="text-2xl font-bold text-sky-900">S/ {{ calcularTotalSalidas().toFixed(2) }}</p>
+            </div>
+            <lucide-angular [img]="fileIcon" class="w-10 h-10 text-sky-900"></lucide-angular>
+          </div>
+        </div>
+
+        <div class="bg-white p-5 rounded-lg shadow-md">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm text-gray-600">Número de Salidas</p>
+              <p class="text-2xl font-bold text-sky-900">{{ salidas().length }}</p>
+            </div>
+            <lucide-angular [img]="fileIcon" class="w-10 h-10 text-sky-900"></lucide-angular>
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Reporte de Movimientos -->
+  @if (tipoReporte() === 'movimientos') {
+    <div class="mt-5 bg-white rounded-lg shadow-md overflow-hidden">
+      <div class="p-5 border-b border-gray-200">
+        <h3 class="text-lg font-semibold">Movimientos de Inventario</h3>
+      </div>
+      @if (movimientosFiltrados().length === 0) {
+        <div class="p-10 text-center text-gray-500">
+          <p>No hay movimientos en el período seleccionado</p>
+        </div>
+      } @else {
+        <table class="min-w-full">
+          <thead class="bg-sky-50 border-b border-gray-200">
+          <tr>
+            <th class="py-3 px-6 text-left text-sm font-medium text-gray-500 uppercase">Fecha</th>
+            <th class="py-3 px-6 text-left text-sm font-medium text-gray-500 uppercase">Tipo</th>
+            <th class="py-3 px-6 text-left text-sm font-medium text-gray-500 uppercase">Producto</th>
+            <th class="py-3 px-6 text-center text-sm font-medium text-gray-500 uppercase">Cantidad</th>
+            <th class="py-3 px-6 text-left text-sm font-medium text-gray-500 uppercase">Motivo</th>
+            <th class="py-3 px-6 text-left text-sm font-medium text-gray-500 uppercase">Usuario</th>
+          </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            @for (mov of movimientosFiltrados(); track mov.id) {
+              <tr class="hover:bg-gray-50 transition-colors duration-150">
+                <td class="py-4 px-6 text-sm text-gray-900">{{ formatearFecha(mov.fecha) }}</td>
+                <td class="py-4 px-6 text-sm">
+                  <span class="px-3 py-1 rounded-full text-xs font-medium"
+                        [class.bg-green-100]="mov.tipo === 'Entrada'"
+                        [class.text-green-800]="mov.tipo === 'Entrada'"
+                        [class.bg-red-100]="mov.tipo === 'Salida'"
+                        [class.text-red-800]="mov.tipo === 'Salida'"
+                        [class.bg-yellow-100]="mov.tipo === 'Ajuste'"
+                        [class.text-yellow-800]="mov.tipo === 'Ajuste'">
+                    {{ mov.tipo }}
+                  </span>
+                </td>
+                <td class="py-4 px-6 text-sm text-gray-900">{{ mov.productoNombre }}</td>
+                <td class="py-4 px-6 text-sm text-center font-medium">{{ mov.cantidad }}</td>
+                <td class="py-4 px-6 text-sm text-gray-900">{{ mov.motivo }}</td>
+                <td class="py-4 px-6 text-sm text-gray-900">{{ mov.usuarioNombre }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
+    </div>
+  }
+
+  <!-- Reporte de Salidas -->
+  @if (tipoReporte() === 'salidas') {
+    <div class="mt-5 bg-white rounded-lg shadow-md overflow-hidden">
+      <div class="p-5 border-b border-gray-200">
+        <h3 class="text-lg font-semibold">Salidas de Productos</h3>
+      </div>
+      @if (salidas().length === 0) {
+        <div class="p-10 text-center text-gray-500">
+          <p>No hay salidas en el período seleccionado</p>
+        </div>
+      } @else {
+        <table class="min-w-full">
+          <thead class="bg-sky-50 border-b border-gray-200">
+          <tr>
+            <th class="py-3 px-6 text-left text-sm font-medium text-gray-500 uppercase">Fecha</th>
+            <th class="py-3 px-6 text-left text-sm font-medium text-gray-500 uppercase">Comprobante</th>
+            <th class="py-3 px-6 text-left text-sm font-medium text-gray-500 uppercase">Tipo</th>
+            <th class="py-3 px-6 text-center text-sm font-medium text-gray-500 uppercase">Total</th>
+            <th class="py-3 px-6 text-left text-sm font-medium text-gray-500 uppercase">Usuario</th>
+          </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            @for (salida of salidas(); track salida.id) {
+              <tr class="hover:bg-gray-50 transition-colors duration-150">
+                <td class="py-4 px-6 text-sm text-gray-900">{{ formatearFecha(salida.fecha) }}</td>
+                <td class="py-4 px-6 text-sm text-gray-900 font-mono">{{ salida.comprobanteId }}</td>
+                <td class="py-4 px-6 text-sm text-gray-900">{{ salida.tipo }}</td>
+                <td class="py-4 px-6 text-sm text-center font-bold text-sky-900">S/ {{ salida.total.toFixed(2) }}</td>
+                <td class="py-4 px-6 text-sm text-gray-900">{{ salida.usuarioNombre }}</td>
+              </tr>
+            }
+          </tbody>
+          <tfoot class="bg-sky-50 border-t-2 border-sky-900">
+          <tr>
+            <td colspan="3" class="py-3 px-6 text-right font-bold text-gray-700">TOTAL GENERAL:</td>
+            <td class="py-3 px-6 text-center font-bold text-sky-900 text-lg">
+              S/ {{ calcularTotalSalidas().toFixed(2) }}
+            </td>
+            <td></td>
+          </tr>
+          </tfoot>
+        </table>
+      }
+    </div>
+
+    <!-- Productos Más Vendidos -->
+    <div class="mt-5 bg-white rounded-lg shadow-md p-5">
+      <h3 class="text-lg font-semibold mb-4">Top 5 Productos Más Vendidos</h3>
+      <div class="space-y-3">
+        @for (prod of getProductosMasVendidos(); track prod.nombre) {
+          <div class="flex items-center justify-between p-3 bg-sky-50 rounded-lg">
+            <span class="font-medium text-gray-900">{{ prod.nombre }}</span>
+            <span class="text-sky-900 font-bold">{{ prod.cantidad }} unidades</span>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Reporte de Productos -->
+  @if (tipoReporte() === 'productos') {
+    <div class="mt-5 bg-white rounded-lg shadow-md overflow-hidden">
+      <div class="p-5 border-b border-gray-200">
+        <h3 class="text-lg font-semibold">Inventario de Productos</h3>
+      </div>
+      <table class="min-w-full">
+        <thead class="bg-sky-50 border-b border-gray-200">
+        <tr>
+          <th class="py-3 px-6 text-left text-sm font-medium text-gray-500 uppercase">Código</th>
+          <th class="py-3 px-6 text-left text-sm font-medium text-gray-500 uppercase">Producto</th>
+          <th class="py-3 px-6 text-left text-sm font-medium text-gray-500 uppercase">Categoría</th>
+          <th class="py-3 px-6 text-center text-sm font-medium text-gray-500 uppercase">Stock</th>
+          <th class="py-3 px-6 text-center text-sm font-medium text-gray-500 uppercase">Stock Mín.</th>
+          <th class="py-3 px-6 text-center text-sm font-medium text-gray-500 uppercase">Precio</th>
+          <th class="py-3 px-6 text-center text-sm font-medium text-gray-500 uppercase">Valor Total</th>
+        </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          @for (producto of productos(); track producto.id) {
+            <tr class="hover:bg-gray-50 transition-colors duration-150">
+              <td class="py-4 px-6 text-sm text-gray-900">{{ producto.codigo }}</td>
+              <td class="py-4 px-6 text-sm text-gray-900">{{ producto.nombre }}</td>
+              <td class="py-4 px-6 text-sm text-gray-900">{{ producto.categoria }}</td>
+              <td class="py-4 px-6 text-sm text-center font-medium"
+                  [class.text-red-600]="producto.stock <= producto.stockMinimo">
+                {{ producto.stock }}
+              </td>
+              <td class="py-4 px-6 text-sm text-center text-gray-900">{{ producto.stockMinimo }}</td>
+              <td class="py-4 px-6 text-sm text-center text-gray-900">S/ {{ producto.precio.toFixed(2) }}</td>
+              <td class="py-4 px-6 text-sm text-center font-bold text-sky-900">
+                S/ {{ (producto.stock * producto.precio).toFixed(2) }}
+              </td>
+            </tr>
+          }
+        </tbody>
+        <tfoot class="bg-sky-50 border-t-2 border-sky-900">
+        <tr>
+          <td colspan="6" class="py-3 px-6 text-right font-bold text-gray-700">VALOR TOTAL INVENTARIO:</td>
+          <td class="py-3 px-6 text-center font-bold text-sky-900 text-lg">
+            S/ {{ productos().reduce((sum, p) = > sum + (p.stock * p.precio), 0).toFixed(2) }}
+          </td>
+        </tr>
+        </tfoot>
+      </table>
+    </div>
+  }
+</div>

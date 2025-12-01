@@ -1,1 +1,198 @@
-<p>dashboard works!</p>
+<div class="mx-48">
+  <div class="mt-10">
+    <h1 class="text-2xl font-bold">{{ title() }}</h1>
+    <p class="text-gray-600 mt-2">Resumen general del sistema de inventario</p>
+  </div>
+
+  <!-- Tarjetas de Estadísticas -->
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-5 mt-8">
+    <!-- Total Productos -->
+    <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm text-gray-600 uppercase">Total Productos</p>
+          <p class="text-3xl font-bold text-sky-900 mt-2">{{ productos().length }}</p>
+        </div>
+        <div class="bg-sky-100 p-4 rounded-full">
+          <lucide-angular [img]="packageIcon" class="w-8 h-8 text-sky-900"></lucide-angular>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stock Bajo -->
+    <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm text-gray-600 uppercase">Alertas Stock</p>
+          <p class="text-3xl font-bold text-red-600 mt-2">{{ productosStockBajo().length }}</p>
+        </div>
+        <div class="bg-red-100 p-4 rounded-full">
+          <lucide-angular [img]="warningIcon" class="w-8 h-8 text-red-600"></lucide-angular>
+        </div>
+      </div>
+      <a routerLink="/almacen" class="text-xs text-red-600 hover:underline mt-2 inline-block">Ver detalles →</a>
+    </div>
+
+    <!-- Valor Inventario -->
+    <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm text-gray-600 uppercase">Valor Inventario</p>
+          <p class="text-3xl font-bold text-green-600 mt-2">S/ {{ calcularValorInventario().toFixed(2) }}</p>
+        </div>
+        <div class="bg-green-100 p-4 rounded-full">
+          <lucide-angular [img]="upIcon" class="w-8 h-8 text-green-600"></lucide-angular>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ventas Hoy -->
+    <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm text-gray-600 uppercase">Ventas Hoy</p>
+          <p class="text-3xl font-bold text-purple-600 mt-2">S/ {{ calcularVentasHoy().toFixed(2) }}</p>
+        </div>
+        <div class="bg-purple-100 p-4 rounded-full">
+          <lucide-angular [img]="cartIcon" class="w-8 h-8 text-purple-600"></lucide-angular>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mt-8">
+    <!-- Productos con Stock Bajo -->
+    <div class="bg-white rounded-lg shadow-md">
+      <div class="p-5 border-b border-gray-200 flex items-center justify-between">
+        <h3 class="text-lg font-semibold flex items-center gap-2">
+          <lucide-angular [img]="warningIcon" class="w-5 h-5 text-red-600"></lucide-angular>
+          Productos con Stock Crítico
+        </h3>
+        <a routerLink="/almacen" class="text-sm text-sky-900 hover:underline">Ver todos →</a>
+      </div>
+      <div class="p-5">
+        @if (productosStockBajo().length === 0) {
+          <div class="text-center py-8 text-gray-500">
+            <p>No hay productos con stock bajo</p>
+          </div>
+        } @else {
+          <div class="space-y-3">
+            @for (producto of productosStockBajo().slice(0, 5); track producto.id) {
+              <div class="flex items-center justify-between p-3 bg-red-50 rounded-lg hover:bg-red-100 transition-colors">
+                <div>
+                  <p class="font-medium text-gray-900">{{ producto.nombre }}</p>
+                  <p class="text-sm text-gray-600">{{ producto.codigo }}</p>
+                </div>
+                <div class="text-right">
+                  <p class="text-red-600 font-bold">{{ producto.stock }}</p>
+                  <p class="text-xs text-gray-600">Min: {{ producto.stockMinimo }}</p>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Últimos Movimientos -->
+    <div class="bg-white rounded-lg shadow-md">
+      <div class="p-5 border-b border-gray-200 flex items-center justify-between">
+        <h3 class="text-lg font-semibold flex items-center gap-2">
+          <lucide-angular [img]="fileIcon" class="w-5 h-5 text-sky-900"></lucide-angular>
+          Últimos Movimientos
+        </h3>
+        <a routerLink="/reportes" class="text-sm text-sky-900 hover:underline">Ver todos →</a>
+      </div>
+      <div class="p-5">
+        @if (movimientos().length === 0) {
+          <div class="text-center py-8 text-gray-500">
+            <p>No hay movimientos recientes</p>
+          </div>
+        } @else {
+          <div class="space-y-3">
+            @for (movimiento of movimientos(); track movimiento.id) {
+              <div class="flex items-center justify-between p-3 border-l-4 rounded-r-lg"
+                   [class.border-green-500]="movimiento.tipo === 'Entrada'"
+                   [class.bg-green-50]="movimiento.tipo === 'Entrada'"
+                   [class.border-red-500]="movimiento.tipo === 'Salida'"
+                   [class.bg-red-50]="movimiento.tipo === 'Salida'"
+                   [class.border-yellow-500]="movimiento.tipo === 'Ajuste'"
+                   [class.bg-yellow-50]="movimiento.tipo === 'Ajuste'">
+                <div class="flex-1">
+                  <p class="font-medium text-gray-900">{{ movimiento.productoNombre }}</p>
+                  <p class="text-xs text-gray-600">{{ movimiento.motivo }}</p>
+                </div>
+                <div class="text-right">
+                  <span class="px-2 py-1 rounded text-xs font-medium"
+                        [class.bg-green-200]="movimiento.tipo === 'Entrada'"
+                        [class.text-green-800]="movimiento.tipo === 'Entrada'"
+                        [class.bg-red-200]="movimiento.tipo === 'Salida'"
+                        [class.text-red-800]="movimiento.tipo === 'Salida'"
+                        [class.bg-yellow-200]="movimiento.tipo === 'Ajuste'"
+                        [class.text-yellow-800]="movimiento.tipo === 'Ajuste'">
+                    {{ movimiento.tipo }}
+                  </span>
+                  <p class="text-xs text-gray-600 mt-1">{{ movimiento.cantidad }} unid.</p>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- Gráfico de Estado del Inventario -->
+  <div class="mt-8 bg-white rounded-lg shadow-md p-6">
+    <h3 class="text-lg font-semibold mb-4">Estado del Inventario por Categoría</h3>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      @for (categoria of ['Granos', 'Aceites', 'Endulzantes', 'Pastas']; track categoria) {
+        <div class="border border-gray-200 rounded-lg p-4 text-center">
+          <p class="text-gray-600 text-sm mb-2">{{ categoria }}</p>
+          <p class="text-2xl font-bold text-sky-900">
+            {{ productos().filter(p => p.categoria === categoria).length }}
+          </p>
+          <p class="text-xs text-gray-500 mt-1">productos</p>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Accesos Rápidos -->
+  <div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-5">
+    <a routerLink="/ordenes" class="bg-gradient-to-r from-sky-900 to-sky-700 text-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm opacity-90">Órdenes Pendientes</p>
+          <p class="text-3xl font-bold mt-2">{{ contarOrdenesPendientes() }}</p>
+        </div>
+        <lucide-angular [img]="fileIcon" class="w-10 h-10 opacity-75"></lucide-angular>
+      </div>
+      <p class="text-sm mt-4 opacity-90">Ver órdenes →</p>
+    </a>
+
+    <a routerLink="/productos" class="bg-gradient-to-r from-green-600 to-green-500 text-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm opacity-90">Gestionar Productos</p>
+          <p class="text-3xl font-bold mt-2">{{ productos().length }}</p>
+        </div>
+        <lucide-angular [img]="packageIcon" class="w-10 h-10 opacity-75"></lucide-angular>
+      </div>
+      <p class="text-sm mt-4 opacity-90">Ir a productos →</p>
+    </a>
+
+    <a routerLink="/reportes" class="bg-gradient-to-r from-purple-600 to-purple-500 text-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm opacity-90">Ver Reportes</p>
+          <p class="text-3xl font-bold mt-2">
+            <lucide-angular [img]="fileIcon" class="w-8 h-8 inline"></lucide-angular>
+          </p>
+        </div>
+        <lucide-angular [img]="fileIcon" class="w-10 h-10 opacity-75"></lucide-angular>
+      </div>
+      <p class="text-sm mt-4 opacity-90">Generar reportes →</p>
+    </a>
+  </div>
+</div>
