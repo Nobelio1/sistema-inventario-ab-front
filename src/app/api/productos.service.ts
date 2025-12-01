@@ -1,17 +1,74 @@
 import {inject, Injectable} from '@angular/core';
-import {HttpClient} from '@angular/common/http';
-import {Observable} from 'rxjs';
-import {IProductoSelectResponse} from '../modules/ordenes/interfaces/orden.interface';
-import {environment} from "../../environments/environment";
+import {Observable, of} from 'rxjs';
+import {LocalStorageService} from '../shared/services/local-storage.service';
+import {IProducto, IProductoResponse} from '../shared/interfaces/producto.interface';
+import {IDataResponse} from '../shared/interfaces/data-response.interface';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ProductosService {
-  private apiUrl = `${environment.API_URL}/producto`;
-  private readonly http = inject(HttpClient)
+  private readonly localStorage = inject(LocalStorageService);
 
-  getProductos(): Observable<IProductoSelectResponse> {
-    return this.http.get<IProductoSelectResponse>(`${this.apiUrl}/compra`);
+  getProductos(): Observable<IProductoResponse> {
+    const productos = this.localStorage.get<IProducto>('productos');
+    return of({
+      success: true,
+      message: 'Productos obtenidos correctamente',
+      data: productos
+    });
+  }
+
+  getProductoById(id: number): Observable<IProductoResponse> {
+    const producto = this.localStorage.getById<IProducto>('productos', id);
+    return of({
+      success: !!producto,
+      message: producto ? 'Producto encontrado' : 'Producto no encontrado',
+      data: producto ? [producto] : []
+    });
+  }
+
+  crearProducto(producto: IProducto): Observable<IDataResponse> {
+    this.localStorage.add('productos', producto);
+    return of({
+      success: true,
+      message: 'Producto creado correctamente'
+    });
+  }
+
+  actualizarProducto(producto: IProducto): Observable<IDataResponse> {
+    this.localStorage.update('productos', producto);
+    return of({
+      success: true,
+      message: 'Producto actualizado correctamente'
+    });
+  }
+
+  eliminarProducto(id: number): Observable<IDataResponse> {
+    this.localStorage.delete<IProducto>('productos', id);
+    return of({
+      success: true,
+      message: 'Producto eliminado correctamente'
+    });
+  }
+
+  getProductosStockBajo(): Observable<IProductoResponse> {
+    const productos = this.localStorage.get<IProducto>('productos');
+    const stockBajo = productos.filter(p => p.stock <= p.stockMinimo);
+    return of({
+      success: true,
+      message: 'Productos con stock bajo',
+      data: stockBajo
+    });
+  }
+
+  actualizarStock(id: number, cantidad: number, tipo: 'suma' | 'resta'): void {
+    const producto = this.localStorage.getById<IProducto>('productos', id);
+    if (producto) {
+      producto.stock = tipo === 'suma'
+        ? producto.stock + cantidad
+        : producto.stock - cantidad;
+      this.localStorage.update('productos', producto);
+    }
   }
 }

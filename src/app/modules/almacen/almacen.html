@@ -1,1 +1,188 @@
-<p>almacen works!</p>
+<div class="mx-48">
+  <div class="mt-10">
+    <h1 class="text-2xl font-bold">{{ title() }}</h1>
+  </div>
+
+  <!-- Pestañas de navegación -->
+  <div class="flex gap-2 mt-5">
+    <button
+      (click)="cambiarVista('productos')"
+      [class]="vistaActual() === 'productos'
+        ? 'bg-sky-900 text-white'
+        : 'bg-gray-200 text-gray-700'"
+      class="px-6 py-3 rounded-t-lg transition-colors flex items-center gap-2">
+      <lucide-angular [img]="packageIcon" class="w-4 h-4"></lucide-angular>
+      Stock General
+    </button>
+    <button
+      (click)="cambiarVista('stockBajo')"
+      [class]="vistaActual() === 'stockBajo'
+        ? 'bg-sky-900 text-white'
+        : 'bg-gray-200 text-gray-700'"
+      class="px-6 py-3 rounded-t-lg transition-colors flex items-center gap-2">
+      <lucide-angular [img]="warningIcon" class="w-4 h-4"></lucide-angular>
+      Alertas de Stock ({{ productosStockBajo().length }})
+    </button>
+    <button
+      (click)="cambiarVista('historial')"
+      [class]="vistaActual() === 'historial'
+        ? 'bg-sky-900 text-white'
+        : 'bg-gray-200 text-gray-700'"
+      class="px-6 py-3 rounded-t-lg transition-colors flex items-center gap-2">
+      <lucide-angular [img]="historyIcon" class="w-4 h-4"></lucide-angular>
+      Historial de Ajustes
+    </button>
+  </div>
+
+  <!-- Vista de Stock General -->
+  @if (vistaActual() === 'productos') {
+    <div class="bg-white rounded-b-lg rounded-tr-lg shadow-md overflow-hidden">
+      <div class="p-5 border-b border-gray-200">
+        <h3 class="text-lg font-semibold">Niveles de Stock por Producto</h3>
+      </div>
+      <table class="min-w-full">
+        <thead class="bg-sky-50 border-b border-gray-200">
+        <tr>
+          <th class="py-3 px-6 text-left text-sm font-medium text-gray-500 uppercase">Código</th>
+          <th class="py-3 px-6 text-left text-sm font-medium text-gray-500 uppercase">Producto</th>
+          <th class="py-3 px-6 text-center text-sm font-medium text-gray-500 uppercase">Stock Actual</th>
+          <th class="py-3 px-6 text-center text-sm font-medium text-gray-500 uppercase">Stock Mínimo</th>
+          <th class="py-3 px-6 text-center text-sm font-medium text-gray-500 uppercase">Estado</th>
+          <th class="py-3 px-6 text-center text-sm font-medium text-gray-500 uppercase">Ubicación</th>
+          <th class="py-3 px-6 text-center text-sm font-medium text-gray-500 uppercase">Acciones</th>
+        </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          @for (producto of productos(); track producto.id) {
+            <tr class="hover:bg-gray-50 transition-colors duration-150">
+              <td class="py-4 px-6 text-sm text-gray-900">{{ producto.codigo }}</td>
+              <td class="py-4 px-6 text-sm text-gray-900">{{ producto.nombre }}</td>
+              <td class="py-4 px-6 text-sm text-center font-bold"
+                  [class]="getColorEstado(producto)">
+                {{ producto.stock }}
+              </td>
+              <td class="py-4 px-6 text-sm text-center text-gray-900">{{ producto.stockMinimo }}</td>
+              <td class="py-4 px-6 text-sm text-center">
+                <span class="px-3 py-1 rounded-full text-xs font-medium"
+                      [class]="getColorEstado(producto)">
+                  {{ getEstadoStock(producto) }}
+                </span>
+              </td>
+              <td class="py-4 px-6 text-sm text-center text-gray-900">{{ producto.ubicacion }}</td>
+              <td class="py-4 px-6 text-sm text-center">
+                <button
+                  (click)="abrirModalAjuste(producto)"
+                  class="p-2 text-blue-600 hover:bg-blue-50 rounded transition-colors">
+                  <lucide-angular [img]="editIcon" class="w-4 h-4"></lucide-angular>
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+
+  <!-- Vista de Stock Bajo -->
+  @if (vistaActual() === 'stockBajo') {
+    <div class="bg-white rounded-b-lg rounded-tr-lg shadow-md overflow-hidden">
+      <div class="p-5 border-b border-gray-200 bg-red-50">
+        <h3 class="text-lg font-semibold text-red-800 flex items-center gap-2">
+          <lucide-angular [img]="warningIcon" class="w-5 h-5"></lucide-angular>
+          Productos con Stock Crítico o Bajo
+        </h3>
+      </div>
+      @if (productosStockBajo().length === 0) {
+        <div class="p-10 text-center text-gray-500">
+          <p>No hay productos con stock bajo en este momento</p>
+        </div>
+      } @else {
+        <table class="min-w-full">
+          <thead class="bg-sky-50 border-b border-gray-200">
+          <tr>
+            <th class="py-3 px-6 text-left text-sm font-medium text-gray-500 uppercase">Código</th>
+            <th class="py-3 px-6 text-left text-sm font-medium text-gray-500 uppercase">Producto</th>
+            <th class="py-3 px-6 text-center text-sm font-medium text-gray-500 uppercase">Stock Actual</th>
+            <th class="py-3 px-6 text-center text-sm font-medium text-gray-500 uppercase">Stock Mínimo</th>
+            <th class="py-3 px-6 text-center text-sm font-medium text-gray-500 uppercase">Diferencia</th>
+            <th class="py-3 px-6 text-center text-sm font-medium text-gray-500 uppercase">Acciones</th>
+          </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            @for (producto of productosStockBajo(); track producto.id) {
+              <tr class="bg-red-50 hover:bg-red-100 transition-colors duration-150">
+                <td class="py-4 px-6 text-sm text-gray-900">{{ producto.codigo }}</td>
+                <td class="py-4 px-6 text-sm text-gray-900 font-medium">{{ producto.nombre }}</td>
+                <td class="py-4 px-6 text-sm text-center text-red-600 font-bold">{{ producto.stock }}</td>
+                <td class="py-4 px-6 text-sm text-center text-gray-900">{{ producto.stockMinimo }}</td>
+                <td class="py-4 px-6 text-sm text-center text-red-600 font-medium">
+                  {{ producto.stockMinimo - producto.stock }}
+                </td>
+                <td class="py-4 px-6 text-sm text-center">
+                  <button
+                    (click)="abrirModalAjuste(producto)"
+                    class="px-4 py-2 bg-sky-900 text-white rounded-md hover:bg-sky-700 transition-colors">
+                    Ajustar
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
+    </div>
+  }
+
+  <!-- Vista de Historial de Ajustes -->
+  @if (vistaActual() === 'historial') {
+    <div class="bg-white rounded-b-lg rounded-tr-lg shadow-md overflow-hidden">
+      <div class="p-5 border-b border-gray-200">
+        <h3 class="text-lg font-semibold">Historial de Ajustes de Inventario</h3>
+      </div>
+      @if (ajustes().length === 0) {
+        <div class="p-10 text-center text-gray-500">
+          <p>No hay ajustes registrados</p>
+        </div>
+      } @else {
+        <table class="min-w-full">
+          <thead class="bg-sky-50 border-b border-gray-200">
+          <tr>
+            <th class="py-3 px-6 text-left text-sm font-medium text-gray-500 uppercase">Fecha</th>
+            <th class="py-3 px-6 text-left text-sm font-medium text-gray-500 uppercase">Producto</th>
+            <th class="py-3 px-6 text-center text-sm font-medium text-gray-500 uppercase">Cant. Anterior</th>
+            <th class="py-3 px-6 text-center text-sm font-medium text-gray-500 uppercase">Cant. Nueva</th>
+            <th class="py-3 px-6 text-center text-sm font-medium text-gray-500 uppercase">Diferencia</th>
+            <th class="py-3 px-6 text-left text-sm font-medium text-gray-500 uppercase">Motivo</th>
+            <th class="py-3 px-6 text-left text-sm font-medium text-gray-500 uppercase">Usuario</th>
+          </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            @for (ajuste of ajustes(); track ajuste.id) {
+              <tr class="hover:bg-gray-50 transition-colors duration-150">
+                <td class="py-4 px-6 text-sm text-gray-900">{{ formatearFecha(ajuste.fecha) }}</td>
+                <td class="py-4 px-6 text-sm text-gray-900">{{ ajuste.productoNombre }}</td>
+                <td class="py-4 px-6 text-sm text-center text-gray-900">{{ ajuste.cantidadAnterior }}</td>
+                <td class="py-4 px-6 text-sm text-center text-gray-900">{{ ajuste.cantidadNueva }}</td>
+                <td class="py-4 px-6 text-sm text-center font-medium"
+                    [class.text-green-600]="ajuste.diferencia > 0"
+                    [class.text-red-600]="ajuste.diferencia < 0">
+                  {{ ajuste.diferencia > 0 ? '+' : '' }}{{ ajuste.diferencia }}
+                </td>
+                <td class="py-4 px-6 text-sm text-gray-900">{{ ajuste.motivo }}</td>
+                <td class="py-4 px-6 text-sm text-gray-900">{{ ajuste.usuarioNombre }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
+    </div>
+  }
+</div>
+
+@if (mostrarModalAjuste()) {
+  <app-ajuste-inventario-modal
+    [producto]="productoAjustar()!"
+    (closeModal)="cerrarModalAjuste()"
+    (ajusteRealizado)="onAjusteRealizado()">
+  </app-ajuste-inventario-modal>
+}

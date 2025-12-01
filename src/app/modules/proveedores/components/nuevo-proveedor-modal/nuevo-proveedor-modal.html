@@ -1,0 +1,120 @@
+<div class="fixed inset-0 bg-black opacity-50 z-50" (click)="close()"></div>
+
+<div class="fixed inset-0 flex items-center justify-center z-50 p-4 pointer-events-none">
+  <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full pointer-events-auto">
+    <div class="bg-sky-900 text-white px-6 py-4 flex justify-between items-center">
+      <h2 class="text-xl font-bold">
+        {{ proveedor ? 'Editar Proveedor' : 'Nuevo Proveedor' }}
+      </h2>
+      <button (click)="close()" class="text-white hover:text-gray-200 transition-colors">
+        <lucide-angular [img]="closeIcon" class="w-6 h-6"></lucide-angular>
+      </button>
+    </div>
+
+    <form [formGroup]="proveedorForm" (ngSubmit)="onSubmit()" class="p-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="md:col-span-2">
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            Nombre o Razón Social <span class="text-red-500">*</span>
+          </label>
+          <input
+            type="text"
+            formControlName="nombre"
+            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-500"
+            [class.border-red-500]="proveedorForm.get('nombre')?.invalid && proveedorForm.get('nombre')?.touched"
+          />
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            RUC (11 dígitos) <span class="text-red-500">*</span>
+          </label>
+          <input
+            type="text"
+            formControlName="ruc"
+            maxlength="11"
+            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-500"
+            [class.border-red-500]="proveedorForm.get('ruc')?.invalid && proveedorForm.get('ruc')?.touched"
+          />
+          @if (proveedorForm.get('ruc')?.hasError('pattern') && proveedorForm.get('ruc')?.touched) {
+            <p class="text-red-500 text-xs mt-1">El RUC debe tener 11 dígitos</p>
+          }
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            Teléfono (9 dígitos) <span class="text-red-500">*</span>
+          </label>
+          <input
+            type="text"
+            formControlName="telefono"
+            maxlength="9"
+            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-500"
+            [class.border-red-500]="proveedorForm.get('telefono')?.invalid && proveedorForm.get('telefono')?.touched"
+          />
+          @if (proveedorForm.get('telefono')?.hasError('pattern') && proveedorForm.get('telefono')?.touched) {
+            <p class="text-red-500 text-xs mt-1">El teléfono debe tener 9 dígitos</p>
+          }
+        </div>
+
+        <div class="md:col-span-2">
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            Email <span class="text-red-500">*</span>
+          </label>
+          <input
+            type="email"
+            formControlName="email"
+            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-500"
+            [class.border-red-500]="proveedorForm.get('email')?.invalid && proveedorForm.get('email')?.touched"
+          />
+          @if (proveedorForm.get('email')?.hasError('email') && proveedorForm.get('email')?.touched) {
+            <p class="text-red-500 text-xs mt-1">Ingrese un email válido</p>
+          }
+        </div>
+
+        <div class="md:col-span-2">
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            Dirección <span class="text-red-500">*</span>
+          </label>
+          <input
+            type="text"
+            formControlName="direccion"
+            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-500"
+            [class.border-red-500]="proveedorForm.get('direccion')?.invalid && proveedorForm.get('direccion')?.touched"
+          />
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            Estado <span class="text-red-500">*</span>
+          </label>
+          <select
+            formControlName="estado"
+            class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-500"
+          >
+            <option value="Activo">Activo</option>
+            <option value="Inactivo">Inactivo</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-3 pt-6 mt-6 border-t border-gray-200">
+        <button
+          type="button"
+          (click)="close()"
+          class="px-6 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors"
+          [disabled]="isSubmitting()"
+        >
+          Cancelar
+        </button>
+        <button
+          type="submit"
+          class="px-6 py-2 bg-sky-900 text-white rounded-md hover:bg-sky-700 transition-colors disabled:opacity-50"
+          [disabled]="isSubmitting() || proveedorForm.invalid"
+        >
+          {{ isSubmitting() ? 'Guardando...' : (proveedor ? 'Actualizar' : 'Crear') }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

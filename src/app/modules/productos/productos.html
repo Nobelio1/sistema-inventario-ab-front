@@ -1,1 +1,93 @@
-<p>productos works!</p>
+<div class="mx-48">
+  <div class="mt-10">
+    <h1 class="text-2xl font-bold">{{ title() }}</h1>
+  </div>
+
+  <div class="flex justify-between items-center mt-5 bg-white p-5 rounded-lg shadow-md">
+    <div class="flex gap-5">
+      <span>{{ productos().length }} Productos</span>
+      <span class="text-red-500">{{ contarStockBajo() }} Stock Bajo</span>
+      <span class="text-green-600">{{ contarStockNormal() }} Stock Normal</span>
+    </div>
+    <div class="flex gap-3">
+      <input
+        type="text"
+        placeholder="Buscar producto..."
+        [ngModel]="filtro()"
+        (ngModelChange)="filtro.set($event)"
+        class="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-500"
+      />
+      <button
+        (click)="abrirModal()"
+        class="bg-sky-900 text-white px-4 py-2 rounded-md cursor-pointer transition-colors hover:bg-sky-700 duration-200 flex items-center gap-2">
+        <lucide-angular [img]="plusIcon" class="w-4 h-4"></lucide-angular>
+        Nuevo Producto
+      </button>
+    </div>
+  </div>
+
+  <div class="mt-5">
+    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+      <table class="min-w-full">
+        <thead class="bg-sky-50 border-b border-gray-200">
+        <tr>
+          <th class="py-3 px-6 text-left text-sm font-medium text-gray-500 uppercase">Código</th>
+          <th class="py-3 px-6 text-left text-sm font-medium text-gray-500 uppercase">Producto</th>
+          <th class="py-3 px-6 text-left text-sm font-medium text-gray-500 uppercase">Categoría</th>
+          <th class="py-3 px-6 text-center text-sm font-medium text-gray-500 uppercase">Stock</th>
+          <th class="py-3 px-6 text-center text-sm font-medium text-gray-500 uppercase">Stock Mín.</th>
+          <th class="py-3 px-6 text-center text-sm font-medium text-gray-500 uppercase">Precio</th>
+          <th class="py-3 px-6 text-center text-sm font-medium text-gray-500 uppercase">Ubicación</th>
+          <th class="py-3 px-6 text-center text-sm font-medium text-gray-500 uppercase">Acciones</th>
+        </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          @for (producto of productosFiltrados(); track producto.id) {
+            <tr class="hover:bg-gray-50 transition-colors duration-150"
+                [class.bg-red-50]="esStockBajo(producto)">
+              <td class="py-4 px-6 text-sm text-gray-900">{{ producto.codigo }}</td>
+              <td class="py-4 px-6 text-sm text-gray-900">
+                <div class="flex items-center gap-2">
+                  {{ producto.nombre }}
+                  @if (esStockBajo(producto)) {
+                    <lucide-angular [img]="warningIcon" class="w-4 h-4 text-red-500"></lucide-angular>
+                  }
+                </div>
+              </td>
+              <td class="py-4 px-6 text-sm text-gray-900">{{ producto.categoria }}</td>
+              <td class="py-4 px-6 text-sm text-center font-medium"
+                  [class.text-red-600]="esStockBajo(producto)">
+                {{ producto.stock }}
+              </td>
+              <td class="py-4 px-6 text-sm text-center text-gray-900">{{ producto.stockMinimo }}</td>
+              <td class="py-4 px-6 text-sm text-center text-gray-900">S/ {{ producto.precio.toFixed(2) }}</td>
+              <td class="py-4 px-6 text-sm text-center text-gray-900">{{ producto.ubicacion }}</td>
+              <td class="py-4 px-6 text-sm text-center">
+                <div class="flex justify-center gap-2">
+                  <button
+                    (click)="abrirModal(producto)"
+                    class="p-2 text-blue-600 hover:bg-blue-50 rounded transition-colors">
+                    <lucide-angular [img]="editIcon" class="w-4 h-4"></lucide-angular>
+                  </button>
+                  <button
+                    (click)="eliminarProducto(producto.id!)"
+                    class="p-2 text-red-600 hover:bg-red-50 rounded transition-colors">
+                    <lucide-angular [img]="deleteIcon" class="w-4 h-4"></lucide-angular>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+@if (mostrarModal()) {
+  <app-nuevo-producto-modal
+    [producto]="productoEditar()"
+    (closeModal)="cerrarModal()"
+    (productoGuardado)="onProductoGuardado()">
+  </app-nuevo-producto-modal>
+}
